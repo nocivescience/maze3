@@ -31,9 +31,9 @@
     .maze{
         position: absolute;
         left: 50%;
-        border-radius: 6px;
         box-shadow: 0 0 16px #fff;
         transform: translateX(-50%);
+        padding: 10px;
     }
     #settings{
         position: absolute;
@@ -48,6 +48,7 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+        display: none;
     }
     input{
         margin-bottom: 1rem;
@@ -152,6 +153,36 @@
                         grid[r][c].show(this.size, this.rows, this.columns);
                     }
                 }
+                // let grid1 = this.grid[0][0].show(
+                //     this.size,
+                //     this.rows,
+                //     this.columns
+                // )
+                // let grid2 = this.grid[0][1].show(
+                //     this.size,
+                //     this.rows,
+                //     this.columns
+                // )
+                // let grid3 = this.grid[1][0].show(
+                //     this.size,
+                //     this.rows,
+                //     this.columns
+                // )
+                // let grid4 = this.grid[1][1].show(
+                //     this.size,
+                //     this.rows,
+                //     this.columns
+                // )
+                // let grid5 = this.grid[2][0].show(
+                //     this.size,
+                //     this.rows,
+                //     this.columns
+                // )
+                // let grid6 = this.grid[2][1].show(
+                //     this.size,
+                //     this.rows,
+                //     this.columns
+                // )
             }
         }
         class Cell{
@@ -169,10 +200,19 @@
                 };
                 this.goal = false;
             }
+            checkNeighbors(){
+                let grid = this.parentGrid;
+                let row = this.rowNum;
+                let col = this.colNum;
+                let neighbors = [];
+                let top=row!==0 ? grid[row-1][col] : undefined;
+                console.log(top);
+            }
             drawTopWall(x, y, size, columns, rows){
                 ctx.beginPath();
                 ctx.moveTo(x, y);
                 ctx.lineTo(x + size / columns, y);
+                ctx.strokeStyle = '#00c3ff';
                 ctx.stroke();
             }
             drawRightWall(x, y, size, columns, rows){
@@ -196,12 +236,21 @@
             show(size, rows, columns){
                 let x = (this.colNum * size) / columns;
                 let y = (this.rowNum * size) / rows;
-                ctx.strokeStyle = 'black';
-                ctx.fillStyle = 'white';
+                ctx.strokeStyle = '#fff';
+                ctx.fillStyle = '#000000';
                 ctx.lineWidth = 2;
-                ctx.fillRect(x+1, y+1, size / columns-2, size / rows-2);
-                // ctx.fillStyle = '#fbf9f9';
-                ctx.fillRect(x+1, y+1, size / columns-4, size / rows-4);
+                if (this.walls.topWall){
+                    this.drawTopWall(x, y, size, columns, rows);
+                }
+                if (this.walls.rightWall){
+                    this.drawRightWall(x, y, size, columns, rows);
+                }
+                if (this.walls.bottomWall){
+                    this.drawBottomWall(x, y, size, columns, rows);
+                }
+                if (this.walls.leftWall){
+                    this.drawLeftWall(x, y, size, columns, rows);
+                }
             }
         }
         const maze = new Maze(500, 30, 20);
