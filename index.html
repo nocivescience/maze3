@@ -156,39 +156,18 @@
                 if(next){
                     next.visited = true;
                     this.stack.push(current);
+                    current.highlight();
+                    current.removeWalls(current, next);
                     current = next;
+                }else if(this.stack.length > 0){
+                    current = this.stack.pop();
+                    current.highlight();
                 }
-                current.highlight();
-                // let grid1 = this.grid[0][0].show(
-                //     this.size,
-                //     this.rows,
-                //     this.columns
-                // )
-                // let grid2 = this.grid[0][1].show(
-                //     this.size,
-                //     this.rows,
-                //     this.columns
-                // )
-                // let grid3 = this.grid[1][0].show(
-                //     this.size,
-                //     this.rows,
-                //     this.columns
-                // )
-                // let grid4 = this.grid[1][1].show(
-                //     this.size,
-                //     this.rows,
-                //     this.columns
-                // )
-                // let grid5 = this.grid[2][0].show(
-                //     this.size,
-                //     this.rows,
-                //     this.columns
-                // )
-                // let grid6 = this.grid[2][1].show(
-                //     this.size,
-                //     this.rows,
-                //     this.columns
-                // )
+                if(this.stack.length === 0){
+                    generationComplete = true;
+                    return;
+                }
+                requestAnimationFrame(() => this.draw());
             }
         }
         class Cell{
@@ -215,8 +194,23 @@
                 let right=col!==grid.length-1 ? grid[row][col+1] : undefined;
                 let bottom=row!==grid.length-1 ? grid[row+1][col] : undefined;
                 let left=col!==0 ? grid[row][col-1] : undefined;
-                if(top){
+                if(top&&!top.visited){
                     neighbors.push(top);
+                }
+                if(right&&!right.visited){
+                    neighbors.push(right);
+                }
+                if(bottom&&!bottom.visited){
+                    neighbors.push(bottom);
+                }
+                if(left&&!left.visited){
+                    neighbors.push(left);
+                }
+                if(neighbors.length !==0){
+                    let random = Math.floor(Math.random() * neighbors.length);
+                    return neighbors[random];
+                }else{
+                    return undefined;
                 }
             }
             drawTopWall(x, y, size, columns, rows){
@@ -262,6 +256,13 @@
                 if (this.walls.leftWall){
                     this.drawLeftWall(x, y, size, columns, rows);
                 }
+                if (this.visited){
+                    ctx.fillRect(x + 1, y + 1, size / columns - 2, size / rows - 2);
+                }
+                if (this.goal){
+                    ctx.fillStyle = '#00c3ff';
+                    ctx.fillRect(x + 1, y + 1, size / columns - 2, size / rows - 2);
+                }
             }
             highlight(){
                 let x= (this.colNum * this.parentSize) / this.parentGrid.length;
@@ -271,7 +272,21 @@
             }
             removeWalls(cell1, cell2){
                 let x= cell1.colNum - cell2.colNum;
-                console.log(x);
+                if(x===1){
+                    cell1.walls.leftWall = false;
+                    cell2.walls.rightWall = false;
+                }else if(x===-1){
+                    cell1.walls.rightWall = false;
+                    cell2.walls.leftWall = false;
+                }
+                let y= cell1.rowNum - cell2.rowNum;
+                if(y===1){
+                    cell1.walls.topWall = false;
+                    cell2.walls.bottomWall = false;
+                }else if(y===-1){
+                    cell1.walls.bottomWall = false;
+                    cell2.walls.topWall = false;
+                }
             }
         }
         const maze = new Maze(500, 30, 30);
