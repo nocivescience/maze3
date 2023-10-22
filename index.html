@@ -1,34 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Bungee+Inline&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Labrynth</title>
-  </head>
-  <body>
-
+    <title>Maze Game</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif;
+        color: #fff;
+    }
+    body{
+        background-color: #707070;
+    }
+    .title{
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 5%;
+        color: black;
+        font-size: 3rem;
+        font-family: 'Bungee Inline', cursive;
+        text-shadow: 0 0 16px #fff;
+    }
+    .maze{
+        position: absolute;
+        left: 50%;
+        border-radius: 6px;
+        box-shadow: 0 0 16px #fff;
+        transform: translateX(-50%);
+    }
+    #settings{
+        position: absolute;
+        padding: 1.5rem;
+        width: 50%;
+        height: 40%;
+        text-align: center;
+        border-radius: 10px;
+        background-color: #2f2f2f;
+        z-index: 2;
+        font-size: .8rem;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    input{
+        margin-bottom: 1rem;
+        background-color: #2f2f2f;
+        text-align: center;
+        border: none;
+        border-bottom: 2px solid #ff0000;
+        margin-bottom: .2rem;
+        /* display: flex;
+        flex-direction: column; */
+    }
+    #submit{
+        background-color: #000000;
+        border: 1px solid #ff0000;
+        border-radius: 6px;
+        padding: .5rem;
+        cursor: pointer;
+        margin: 1rem;
+    }
+    #submit:hover{
+        opacity: .7;
+    }
+    .complete{
+        position: absolute;
+        padding: 1.5rem;
+        width: 50%;
+        height: 40%;
+        text-align: center;
+        border-radius: 10px;
+        background-color: #2f2f2f;
+        z-index: 4;
+        font-size: .8rem;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+    }
+    .group-form{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+</style>
+<body>
     <h1 class="title">Maze Generator</h1>
-
     <div class="complete">
-      <h3>Maze Completed.</h3>
-      <button class="replay" id="submit">Play again</button>
-      <button class="close" id="submit">Close</button>
+        <h3>Maze Completed</h3>
+        <button class="replay" id="submit">Play again</button>
+        <button class="close" id="submit">Close</button>
     </div>
-    
-      <form id="settings" action="">
-        <p>Maze Size</p>
-        <input id="size" type="number" value="500"/></br>
-        <p>Rows/Columns</p>
-        <input id="number" type="number" value="20" /></br>
-        <input id="submit" type="submit" value="Generate Maze">
-      </form>
-  
-    <canvas class="maze"></canvas>
-
-    <script src="maze.js"></script>
-    <script src="settings.js"></script>
-  </body>
+    <form action="" id="settings">
+        <div id="group-form1" class="group-form">
+            <h4>Maze Size</h4>
+            <input id="size" type="number" value="500">
+        </div>
+        <div id="group-form2" class="group-form">
+            <h4>Rows/Columns</h4>
+            <input id="number" type="number" value="20">
+        </div>
+        <div id="group-form2" class="group-form">
+            <input id="submit" type="submit" value="Generate Maze">
+        </div>
+    </form>
+    <div class="container" id="container">
+        <canvas class="maze"></canvas>
+    </div>
+    <script>
+        const mazeEl = document.querySelector('.maze');
+        const ctx = mazeEl.getContext('2d');
+        let generationComplete = false;
+        let current, goal;
+        class Maze{
+            constructor(size, rows, columns){
+                this.size = size;
+                this.rows = rows;
+                this.columns = columns;
+                this.grid = [];
+                this.stack = [];
+            }
+            setup(){
+                for (let r=0; r < this.rows; r++){
+                    for (let c=0; c < this.columns; c++){
+                        const cell = new Cell(r, c, this.grid, this.size);
+                        this.grid.push(cell);
+                    }
+                }
+                current = this.grid[0];
+                this.grid[this.grid.length - 1].goal=true;
+                console.log(this.grid[this.grid.length - 1].goal);
+            }
+            draw(){
+                mazeEl.width = this.size;
+                mazeEl.height = this.size;
+                mazeEl.style.background = '#000000';
+                // current.visited = true;
+            }
+        }
+        class Cell{
+            constructor (rowNum, colNum, parentGrid, parentSize){
+                this.rowNum = rowNum;
+                this.colNum = colNum;
+                this.parentGrid = parentGrid;
+                this.parentSize = parentSize;
+                this.visited = false;
+                this.walls = {
+                    topWall: true,
+                    rightWall: true,
+                    bottomWall: true,
+                    leftWall: true
+                };
+                this.goal = false;
+            }
+        }
+        const maze = new Maze(500, 30, 20);
+        function generateMaze(e){
+            e.preventDefault();
+            maze.setup();
+            maze.draw();
+        }
+        document.addEventListener('click', (e) => {
+            generateMaze(e);
+        })
+    </script>
+</body>
 </html>
