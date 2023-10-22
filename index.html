@@ -115,7 +115,7 @@
         </div>
     </form>
     <div class="container" id="container">
-        <canvas class="maze"></canvas>
+        <canvas class="maze" width="600" height="600"></canvas>
     </div>
     <script>
         const mazeEl = document.querySelector('.maze');
@@ -140,7 +140,6 @@
                     this.grid.push(row);
                 }
                 current = this.grid[0][0];
-                
             }
             draw(){
                 mazeEl.width = this.size;
@@ -153,6 +152,13 @@
                         grid[r][c].show(this.size, this.rows, this.columns);
                     }
                 }
+                let next = current.checkNeighbors();
+                if(next){
+                    next.visited = true;
+                    this.stack.push(current);
+                    current = next;
+                }
+                current.highlight();
                 // let grid1 = this.grid[0][0].show(
                 //     this.size,
                 //     this.rows,
@@ -206,7 +212,12 @@
                 let col = this.colNum;
                 let neighbors = [];
                 let top=row!==0 ? grid[row-1][col] : undefined;
-                console.log(top);
+                let right=col!==grid.length-1 ? grid[row][col+1] : undefined;
+                let bottom=row!==grid.length-1 ? grid[row+1][col] : undefined;
+                let left=col!==0 ? grid[row][col-1] : undefined;
+                if(top){
+                    neighbors.push(top);
+                }
             }
             drawTopWall(x, y, size, columns, rows){
                 ctx.beginPath();
@@ -252,8 +263,18 @@
                     this.drawLeftWall(x, y, size, columns, rows);
                 }
             }
+            highlight(){
+                let x= (this.colNum * this.parentSize) / this.parentGrid.length;
+                let y= (this.rowNum * this.parentSize) / this.parentGrid.length;
+                ctx.fillStyle = 'red';
+                ctx.fillRect(x, y, this.parentSize / this.parentGrid.length, this.parentSize / this.parentGrid.length);
+            }
+            removeWalls(cell1, cell2){
+                let x= cell1.colNum - cell2.colNum;
+                console.log(x);
+            }
         }
-        const maze = new Maze(500, 30, 20);
+        const maze = new Maze(500, 30, 30);
         function generateMaze(e){
             e.preventDefault();
             maze.setup();
